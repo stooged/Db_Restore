@@ -1,14 +1,6 @@
 #include "ps4.h"
 #include "patch.h"
 
-void shutdown()
-{
-	int evf = syscall(540, "SceSysCoreReboot");
-	syscall(546, evf, 0x4000, 0);
-	syscall(541, evf);
-	syscall(37, 1, 30);
-}
-
 int _main(struct thread *td) {
 	initKernel();
 	initLibc();
@@ -22,19 +14,23 @@ int _main(struct thread *td) {
 		{
 			systemMessage("Restoring from: INTERNAL");
 			if (file_exists("/system_data/priv/mms/app.db_backup"))
-			{
+			{			
+				copy_File("/system_data/priv/mms/app.db", "/system_data/priv/mms/app.db_rest-bak");	
 				copy_File("/system_data/priv/mms/app.db_backup", "/system_data/priv/mms/app.db");
 			}		
 			if (file_exists("/system_data/priv/mms/addcont.db_backup"))
 			{
+				copy_File("/system_data/priv/mms/addcont.db", "/system_data/priv/mms/addcont.db_rest-bak");
 				copy_File("/system_data/priv/mms/addcont.db_backup", "/system_data/priv/mms/addcont.db");
 			}	
 			if (file_exists("/system_data/priv/mms/av_content_bg.db_backup"))
 			{
+				copy_File("/system_data/priv/mms/av_content_bg.db", "/system_data/priv/mms/av_content_bg.db_rest-bak");
 				copy_File("/system_data/priv/mms/av_content_bg.db_backup", "/system_data/priv/mms/av_content_bg.db");
 			}
-			systemMessage("DB Restore Complete.");
-			shutdown();
+			systemMessage("DB Restore Complete.\nRebooting console...");
+			sceKernelSleep(8);
+			reboot();
 			return 0;
 		}
 		else
@@ -45,14 +41,17 @@ int _main(struct thread *td) {
 			mkdir("/mnt/usb1/DB_Dackup/", 0777);	
 			if (file_exists("/mnt/usb1/DB_Dackup/app.db"))
 			{
+				copy_File("/system_data/priv/mms/app.db", "/mnt/usb1/DB_Dackup/app.db_rest-bak");	
 				copy_File("/mnt/usb1/DB_Dackup/app.db", "/system_data/priv/mms/app.db");
 			}		
 			if (file_exists("/mnt/usb1/DB_Dackup/addcont.db"))
 			{
+				copy_File("/system_data/priv/mms/addcont.db", "/mnt/usb1/DB_Dackup/addcont.db_rest-bak");	
 				copy_File("/mnt/usb1/DB_Dackup/addcont.db", "/system_data/priv/mms/addcont.db");				
 			}
 			if (file_exists("/mnt/usb1/DB_Dackup/av_content_bg.db"))
 			{
+				copy_File("/system_data/priv/mms/av_content_bg.db", "/mnt/usb1/DB_Dackup/av_content_bg.db_rest-bak");	
 				copy_File("/mnt/usb1/DB_Dackup/av_content_bg.db", "/system_data/priv/mms/av_content_bg.db");				
 			}
 		}
@@ -65,18 +64,22 @@ int _main(struct thread *td) {
 		mkdir("/mnt/usb0/DB_Dackup/", 0777);			
 		if (file_exists("/mnt/usb0/DB_Dackup/app.db"))
 		{
+			copy_File("/system_data/priv/mms/app.db", "/mnt/usb0/DB_Dackup/app.db_rest-bak");
 			copy_File("/mnt/usb0/DB_Dackup/app.db", "/system_data/priv/mms/app.db");				
 		}				
 		if (file_exists("/mnt/usb0/DB_Dackup/addcont.db"))
 		{
+			copy_File("/system_data/priv/mms/addcont.db", "/mnt/usb0/DB_Dackup/addcont.db_rest-bak");
 			copy_File("/mnt/usb0/DB_Dackup/addcont.db", "/system_data/priv/mms/addcont.db");				
 		}
 		if (file_exists("/mnt/usb0/DB_Dackup/av_content_bg.db"))
 		{
+			copy_File("/system_data/priv/mms/av_content_bg.db", "/mnt/usb0/DB_Dackup/av_content_bg.db_rest-bak");
 			copy_File("/mnt/usb0/DB_Dackup/av_content_bg.db", "/system_data/priv/mms/av_content_bg.db");				
 		}
 	}
-	systemMessage("DB Restore Complete.");
-	shutdown();
+	systemMessage("DB Restore Complete.\nRebooting console...");
+	sceKernelSleep(8);
+	reboot();
     return 0;
 }
